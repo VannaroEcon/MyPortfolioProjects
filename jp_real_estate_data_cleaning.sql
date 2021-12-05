@@ -14,11 +14,27 @@ From [dbo].[tokyo_prefecture]
 Select *
 From [dbo].[saitama_prefecture]
 
+
+--------------------------------------------------------------------------------------
+-- Delete Unused Columns
+ALTER TABLE [dbo].[tokyo_prefecture]
+DROP COLUMN [Region], [Layout], [Transaction-price(Unit price m^2)], [Land shape], [Frontage], 
+[Total floor area(m^2)], [Frontage road：Direction], [Frontage road：Classification], 
+[Frontage road：Breadth(m)], [Transactional factors], [Purpose of Use]
+
+ALTER TABLE [dbo].[saitama_prefecture]
+DROP COLUMN [Region], [Layout], [Transaction-price(Unit price m^2)], [Land shape], [Frontage], 
+[Total floor area(m^2)], [Frontage road：Direction], [Frontage road：Classification], 
+[Frontage road：Breadth(m)], [Transactional factors], [Purpose of Use];
+
+
 --------------------------------------------------------------------------------------
 -- Combine the two databases
+Create Table [tokyo_saitama_prefectures]
+Select * from (
 Select * From [dbo].[tokyo_prefecture]
-Union
-Select * From [dbo].[saitama_prefecture]
+union
+Select * From [dbo].[saitama_prefecture]);
 
 
 --------------------------------------------------------------------------------------
@@ -27,13 +43,5 @@ Select * From [dbo].[saitama_prefecture]
 
 
 
--- Delete Unused Columns
-
-Select *
-From PortfolioProject.dbo.tokyo_prefecture
-
-
-ALTER TABLE PortfolioProject.dbo.tokyo_prefecture
-DROP COLUMN Region, FrontageroadFDirection
 
 

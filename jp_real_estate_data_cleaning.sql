@@ -152,3 +152,42 @@ SET [Year] = PARSENAME(REPLACE([Transaction period], ' quarter ', '.'), 1)
 
 Select *
 From [dbo].[tokyo_saitama_prefectures]
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Remove Duplicates
+
+WITH cte AS(
+Select *,
+	ROW_NUMBER() OVER (
+	PARTITION BY [No],
+				 [Type],
+				 [CityCode],
+				 [Prefecture],
+				 [City],
+				 [Area], 
+				 [NearestStation], 
+				 [NearestStation(min)], 
+				 [Transaction-price(total)], 
+				 [Area(m^2)], 
+				 [Year of construction], 
+				 [Building structure], 
+				 [City Planning], 
+				 [Quarter], 
+				 [Year]
+				 ORDER BY
+					[No]
+					) row_num
+
+From [dbo].[tokyo_saitama_prefectures]
+)
+Select *
+From cte
+Where row_num > 1
+
+
+Select *
+From [dbo].[tokyo_saitama_prefectures]
+

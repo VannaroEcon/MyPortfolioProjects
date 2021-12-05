@@ -20,12 +20,14 @@ From [dbo].[saitama_prefecture];
 ALTER TABLE [dbo].[tokyo_prefecture]
 DROP COLUMN [Region], [Layout], [Transaction-price(Unit price m^2)], [Land shape], [Frontage], 
 [Total floor area(m^2)], [Frontage road：Direction], [Frontage road：Classification], 
-[Frontage road：Breadth(m)], [Transactional factors], [Purpose of Use]
+[Frontage road：Breadth(m)], [Transactional factors], [Purpose of Use], [Use], [Maximus Building Coverage Ratio(%)],
+[Maximus Floor-area Ratio(%)], [Renovation]
 
 ALTER TABLE [dbo].[saitama_prefecture]
 DROP COLUMN [Region], [Layout], [Transaction-price(Unit price m^2)], [Land shape], [Frontage], 
 [Total floor area(m^2)], [Frontage road：Direction], [Frontage road：Classification], 
-[Frontage road：Breadth(m)], [Transactional factors], [Purpose of Use];
+[Frontage road：Breadth(m)], [Transactional factors], [Purpose of Use], [Use], [Maximus Building Coverage Ratio(%)],
+[Maximus Floor-area Ratio(%)], [Renovation];
 
 
 --------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ ALTER TABLE [dbo].[tokyo_prefecture]
 DROP COLUMN [Region], [Layout], [Transaction-price(Unit price m^2)], [Land shape], [Frontage], 
 [Total floor area(m^2)], [Frontage roadÅFDirection], [Frontage roadÅFClassification], 
 [Frontage roadÅFBreadth(m)], [Transactional factors], [Purpose of Use], [Use], [Maximus Building Coverage Ratio(%)],
-[Maximus Floor-area Ratio(%)], [Renovation]
+[Maximus Floor-area Ratio(%)], [Renovation];
 
 ALTER TABLE [dbo].[saitama_prefecture]
 DROP COLUMN [Region], [Layout], [Transaction-price(Unit price m^2)], [Land shape], [Frontage], 
@@ -94,3 +94,33 @@ GO
 Select * 
 From [dbo].[tokyo_saitama_prefectures]
 
+
+
+--------------------------------------------------------------------------------------
+-- Split transaction period into quarter and year
+Select [Transaction period] 
+From [dbo].[tokyo_saitama_prefectures]
+
+
+Select 
+     left(PARSENAME(REPLACE([Transaction period], ' quarter ', '.'), 2), 1) AS [Quarter]
+   , PARSENAME(REPLACE([Transaction period], ' quarter ', '.'), 1) AS [Year]
+From [dbo].[tokyo_saitama_prefectures];
+
+
+ALTER TABLE [dbo].[tokyo_saitama_prefectures]
+Add [Quarter] float;
+
+Update [dbo].[tokyo_saitama_prefectures]
+SET [Quarter] = left(PARSENAME(REPLACE([Transaction period], ' quarter ', '.'), 2), 1)
+
+
+ALTER TABLE [dbo].[tokyo_saitama_prefectures]
+Add [Year] float;
+
+Update [dbo].[tokyo_saitama_prefectures]
+SET [Year] = PARSENAME(REPLACE([Transaction period], ' quarter ', '.'), 1)
+
+
+Select *
+From [dbo].[tokyo_saitama_prefectures]

@@ -8,6 +8,7 @@ Real Estate Data Exploration
 USE PortfolioProject
 GO
 
+Select * From dbo.tokyo_saitama_prefectures
 
 
 ------------------------------------------------------------------------------------
@@ -39,3 +40,15 @@ Select Type, Prefecture, cast(AVG([Transaction-price(total)]) as int) as Average
 From dbo.tokyo_saitama_prefectures
 Group by Type, Prefecture
 order by 2, 1
+
+
+
+------------------------------------------------------------------------------------
+
+-- Number of real estate price by type and prefecture
+
+Select Type, Prefecture, COUNT([No]) As Total
+From dbo.tokyo_saitama_prefectures
+Group by Type, Prefecture
+order by 2, 1
+

@@ -157,7 +157,19 @@ From dbo.tokyo_saitama_prefectures
 
 
 
------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+
+-- Clean up [Prefecture] variable
+
+Select *
+From dbo.tokyo_saitama_prefectures
+order by 4
+
+UPDATE dbo.tokyo_saitama_prefectures SET Prefecture = 'Saitama' WHERE Prefecture = 'Saitama Prefecture';
+
+
+
+----------------------------------------------------------------------------------------
 
 -- Remove Duplicates
 

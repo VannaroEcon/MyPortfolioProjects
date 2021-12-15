@@ -179,3 +179,16 @@ Select *
 From nashvillehousing
 
 
+
+--------------------------------------------------------------------------------------
+
+-- Delete Unused Columns
+
+
+Select *
+From dbo.nashvillehousing
+
+
+ALTER TABLE dbo.nashvillehousing
+DROP COLUMN OwnerAddress, TaxDistrict, PropertyAddress, SaleDate
+

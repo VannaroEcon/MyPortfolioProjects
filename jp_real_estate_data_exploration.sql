@@ -1,6 +1,6 @@
 /*
 
-Real Estate Data Exploration
+JP Real Estate Data Exploration
 
 */
 

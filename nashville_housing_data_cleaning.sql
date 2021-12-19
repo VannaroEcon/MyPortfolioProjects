@@ -184,7 +184,6 @@ From nashvillehousing
 
 -- Delete Unused Columns
 
-
 Select *
 From dbo.nashvillehousing
 

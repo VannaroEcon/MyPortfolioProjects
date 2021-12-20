@@ -12,7 +12,7 @@ Go
 
 --------------------------------------------------------------------------------------
 
--- Check the table
+-- Check the tables
 
 Select *
 From dbo.covid19_deaths
@@ -20,10 +20,15 @@ Where continent is not null
 order by 3,4
 
 
+Select *
+From dbo.covid19_vaccinations
+Where continent is not null 
+order by 3,4
+
 
 --------------------------------------------------------------------------------------
 
--- Standardize the Date Format
+-- Standardize the date format for dbo.covid19_deaths
 
 -- Convert date from yyyy-MM-dd hh:mm:ss to yyyy-MM-dd
 ALTER TABLE covid19_deaths
@@ -34,6 +39,23 @@ SET date_converted = CONVERT(Date, date)
 
 -- Drop column 'date'
 ALTER TABLE covid19_deaths
+DROP COLUMN date
+
+
+
+--------------------------------------------------------------------------------------
+
+-- Standardize the date format for dbo.covid19_vaccinations
+
+-- Convert date from yyyy-MM-dd hh:mm:ss to yyyy-MM-dd
+ALTER TABLE covid19_vaccinations
+Add date_converted Date;
+
+Update covid19_vaccinations
+SET date_converted = CONVERT(Date, date)
+
+-- Drop column 'date'
+ALTER TABLE covid19_vaccinations
 DROP COLUMN date
 
 
@@ -61,7 +83,7 @@ order by 1, 2
 
 --------------------------------------------------------------------------------------
 
--- Total Cases vs Population (percentage of infectedpopulation)
+-- Calculate the percentage of infected population (total cases / population)
 
 Select Location, date_converted, Population, total_cases, (total_cases/population)*100 as PercentPopulationInfected
 From dbo.covid19_deaths
@@ -71,7 +93,7 @@ order by 1,2
 
 --------------------------------------------------------------------------------------
 
--- Countries with Highest Infection Rate
+-- Find countries with the highest infection rate
 
 Select Location, Population, MAX(total_cases) as HighestInfectionCount,  Max((total_cases/population))*100 as PercentPopulationInfected
 From dbo.covid19_deaths
@@ -82,7 +104,7 @@ order by PercentPopulationInfected desc
 
 --------------------------------------------------------------------------------------
 
--- Countries with Highest Death Count per Population
+-- Calculate the death count per population by country
 
 Select Location, MAX(cast(Total_deaths as int)) as TotalDeathCount
 From dbo.covid19_deaths
@@ -90,3 +112,108 @@ Where continent is not null
 Group by Location
 order by TotalDeathCount desc
 
+
+
+--------------------------------------------------------------------------------------
+
+-- Calculate the death count per population by continent
+
+Select continent, MAX(cast(Total_deaths as int)) as TotalDeathCount
+From dbo.covid19_deaths
+Where continent is not null 
+Group by continent
+order by TotalDeathCount desc
+
+
+
+--------------------------------------------------------------------------------------
+
+-- Calculate the total case and deaths around the world
+
+Select SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int))/SUM(New_Cases)*100 as DeathPercentage
+From dbo.covid19_deaths
+where continent is not null 
+order by 1,2
+
+
+
+--------------------------------------------------------------------------------------
+
+-- Calculate the percentage of population that received at least 1 covid vaccine
+
+Select d.continent, d.location, d.date_converted, d.population, v.new_vaccinations
+, SUM(CONVERT(bigint, v.new_vaccinations)) OVER (Partition by d.location Order by d.location, d.date_converted) as RollingPeopleVaccinated
+From dbo.covid19_deaths d
+Join dbo.covid19_vaccinations v
+	On d.location = v.location
+	and d.date_converted = v.date_converted
+where d.continent is not null 
+order by 2,3
+
+
+
+--------------------------------------------------------------------------------------
+
+-- Calculate the percentage of people who have been vaccinated 
+
+-- Using CTE
+
+With PopvsVac (Continent, Location, date_converted, Population, New_Vaccinations, RollingPeopleVaccinated)
+as
+(
+Select d.continent, d.location, d.date_converted, d.population, v.new_vaccinations
+, SUM(CONVERT(bigint, v.new_vaccinations)) OVER (Partition by d.Location Order by d.location, d.date_converted) as RollingPeopleVaccinated
+From dbo.covid19_deaths d
+Join dbo.covid19_vaccinations v
+	On d.location = v.location
+	and d.date_converted = v.date_converted
+where d.continent is not null 
+)
+Select *, (RollingPeopleVaccinated/Population)*100 as PercentagePopulationVaccinated
+From PopvsVac
+
+
+-- Using Temp table
+
+DROP Table if exists #PercentPopulationVaccinated
+Create Table #PercentPopulationVaccinated
+(
+Continent nvarchar(255),
+Location nvarchar(255),
+Date datetime,
+Population numeric,
+New_vaccinations numeric,
+RollingPeopleVaccinated numeric
+)
+
+
+Insert into #PercentPopulationVaccinated
+Select d.continent, d.location, d.date_converted, d.population, v.new_vaccinations
+, SUM(CONVERT(bigint,v.new_vaccinations)) OVER (Partition by d.location Order by d.location, d.date_converted) as RollingPeopleVaccinated
+From dbo.covid19_deaths d
+Join dbo.covid19_vaccinations v
+	On d.location = v.location
+	and d.date_converted = v.date_converted
+where d.continent is not null 
+v.
+Select *, (RollingPeopleVaccinated/Population)*100 as PercentagePopulationVaccinated
+From #PercentPopulationVaccinated
+
+GO
+
+--------------------------------------------------------------------------------------
+
+-- Creating View to store data for later visualizations
+
+Create View PercentPopulationVaccinated as
+Select d.continent, d.location, d.date_converted, d.population, v.new_vaccinations
+, SUM(CONVERT(bigint,v.new_vaccinations)) OVER (Partition by d.location Order by d.location, d.date_converted) as RollingPeopleVaccinated
+From dbo.covid19_deaths d
+Join dbo.covid19_vaccinations v
+	On d.location = v.location
+	and d.date_converted = v.date_converted
+where d.continent is not null 
+
+GO
+
+Select * From PercentPopulationVaccinated
